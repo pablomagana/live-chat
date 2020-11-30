@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:lifechat/models/usuarios.dart';
+import 'package:lifechat/widgets/chat_message.dart';
 
 class ChatPage extends StatefulWidget {
   @override
   _ChatPageState createState() => _ChatPageState();
 }
 
-class _ChatPageState extends State<ChatPage> {
-  Usuario userDest = Usuario(uid: '1', name: 'Jaime', email: 'test1@gmail,com', online: true);
+class _ChatPageState extends State<ChatPage>  with TickerProviderStateMixin{
+  Usuario userDest =
+      Usuario(uid: '1', name: 'Jaime', email: 'test1@gmail,com', online: true);
 
+  List<ChatMessage> _messages = [];
+  bool _isWritting = false;
   final _textController = new TextEditingController();
   final _focusNode = new FocusNode();
 
@@ -20,7 +24,8 @@ class _ChatPageState extends State<ChatPage> {
         title: Row(
           children: [
             CircleAvatar(
-              child: Text(userDest.name.substring(0, 2), style: TextStyle(fontSize: 16)),
+              child: Text(userDest.name.substring(0, 2),
+                  style: TextStyle(fontSize: 16)),
               backgroundColor: Colors.white,
             ),
             SizedBox(
@@ -50,10 +55,10 @@ class _ChatPageState extends State<ChatPage> {
               child: ListView.builder(
                   reverse: true,
                   physics: BouncingScrollPhysics(),
-                  itemBuilder: (_, i) => Text(
-                        '$i',
-                        style: TextStyle(color: Colors.black),
-                      )),
+                  itemCount: this._messages.length,
+                  itemBuilder: (_, i) => 
+                        this._messages[i],
+                        ),
             ),
             Divider(
               height: 2,
@@ -78,20 +83,51 @@ class _ChatPageState extends State<ChatPage> {
           Flexible(
               child: TextField(
             controller: _textController,
-            onSubmitted: (value) {},
-            onChanged: (value) {},
+            onSubmitted: _handlerInput,
+            onChanged: (value) {
+              if (value.trim().length>0)
+                this._isWritting = true;
+              else
+                this._isWritting =false;
+                setState(() {
+                  
+                });
+            },
             decoration: InputDecoration.collapsed(hintText: ''),
             focusNode: _focusNode,
           )),
-          IconButton(
-              icon: Icon(
-                Icons.keyboard_arrow_right_rounded,
-                size: 40,
-                color: Colors.blue,
-              ),
-              onPressed: null)
+          IconTheme(
+            data: IconThemeData(color: Colors.blue),
+            child: IconButton(
+                highlightColor: Colors.transparent,
+                splashColor: Colors.transparent,
+                icon: Icon(
+                  Icons.send,
+                  size: 40,
+                ),
+                onPressed: _isWritting?()=>_handlerInput(_textController.text):null),
+          )
         ],
       ),
     ));
+  }
+
+  _handlerInput(String text) {
+    _textController.clear();
+    _focusNode.requestFocus();
+    _isWritting=false;
+    setState(() {
+      final message= new ChatMessage(uid: '123',text: text,animationController: AnimationController(vsync: this,duration: Duration(milliseconds: 500)));
+      this._messages.insert(0, message);
+      message.animationController.forward();
+    });
+  }
+
+  @override
+  void dispose() {
+    for (var i = 0; i < _messages.length; i++) {
+      _messages[i].animationController.dispose();
+    }     
+    super.dispose();
   }
 }
