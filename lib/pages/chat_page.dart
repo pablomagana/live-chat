@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:lifechat/models/usuarios.dart';
+import 'package:lifechat/models/user.dart';
 import 'package:lifechat/widgets/chat_message.dart';
 
 class ChatPage extends StatefulWidget {
@@ -7,9 +7,8 @@ class ChatPage extends StatefulWidget {
   _ChatPageState createState() => _ChatPageState();
 }
 
-class _ChatPageState extends State<ChatPage>  with TickerProviderStateMixin{
-  Usuario userDest =
-      Usuario(uid: '1', name: 'Jaime', email: 'test1@gmail,com', online: true);
+class _ChatPageState extends State<ChatPage> with TickerProviderStateMixin {
+  User userDest = User(uid: '1', name: 'Jaime', email: 'test1@gmail,com', online: true);
 
   List<ChatMessage> _messages = [];
   bool _isWritting = false;
@@ -24,8 +23,7 @@ class _ChatPageState extends State<ChatPage>  with TickerProviderStateMixin{
         title: Row(
           children: [
             CircleAvatar(
-              child: Text(userDest.name.substring(0, 2),
-                  style: TextStyle(fontSize: 16)),
+              child: Text(userDest.name.substring(0, 2), style: TextStyle(fontSize: 16)),
               backgroundColor: Colors.white,
             ),
             SizedBox(
@@ -53,12 +51,11 @@ class _ChatPageState extends State<ChatPage>  with TickerProviderStateMixin{
           children: [
             Flexible(
               child: ListView.builder(
-                  reverse: true,
-                  physics: BouncingScrollPhysics(),
-                  itemCount: this._messages.length,
-                  itemBuilder: (_, i) => 
-                        this._messages[i],
-                        ),
+                reverse: true,
+                physics: BouncingScrollPhysics(),
+                itemCount: this._messages.length,
+                itemBuilder: (_, i) => this._messages[i],
+              ),
             ),
             Divider(
               height: 2,
@@ -85,13 +82,11 @@ class _ChatPageState extends State<ChatPage>  with TickerProviderStateMixin{
             controller: _textController,
             onSubmitted: _handlerInput,
             onChanged: (value) {
-              if (value.trim().length>0)
+              if (value.trim().length > 0)
                 this._isWritting = true;
               else
-                this._isWritting =false;
-                setState(() {
-                  
-                });
+                this._isWritting = false;
+              setState(() {});
             },
             decoration: InputDecoration.collapsed(hintText: ''),
             focusNode: _focusNode,
@@ -105,7 +100,7 @@ class _ChatPageState extends State<ChatPage>  with TickerProviderStateMixin{
                   Icons.send,
                   size: 40,
                 ),
-                onPressed: _isWritting?()=>_handlerInput(_textController.text):null),
+                onPressed: _isWritting ? () => _handlerInput(_textController.text) : null),
           )
         ],
       ),
@@ -115,9 +110,13 @@ class _ChatPageState extends State<ChatPage>  with TickerProviderStateMixin{
   _handlerInput(String text) {
     _textController.clear();
     _focusNode.requestFocus();
-    _isWritting=false;
+    _isWritting = false;
     setState(() {
-      final message= new ChatMessage(uid: '123',text: text,animationController: AnimationController(vsync: this,duration: Duration(milliseconds: 500)));
+      final message = new ChatMessage(
+          uid: '123',
+          text: text,
+          animationController:
+              AnimationController(vsync: this, duration: Duration(milliseconds: 500)));
       this._messages.insert(0, message);
       message.animationController.forward();
     });
@@ -127,7 +126,7 @@ class _ChatPageState extends State<ChatPage>  with TickerProviderStateMixin{
   void dispose() {
     for (var i = 0; i < _messages.length; i++) {
       _messages[i].animationController.dispose();
-    }     
+    }
     super.dispose();
   }
 }

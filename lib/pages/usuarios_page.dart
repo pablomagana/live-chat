@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:lifechat/models/usuarios.dart';
+import 'package:lifechat/models/user.dart';
+import 'package:lifechat/services/auth_service.dart';
 
 class UsuariosPage extends StatefulWidget {
   @override
@@ -9,20 +10,38 @@ class UsuariosPage extends StatefulWidget {
 class _UsuariosPageState extends State<UsuariosPage> {
   bool serverConnected = false;
   final usuarios = [
-    Usuario(uid: '1', name: 'Loreto', email: 'test1@gmail.com', online: true),
-    Usuario(uid: '2', name: 'Elisa', email: 'test2@gmail.com', online: false),
-    Usuario(uid: '3', name: 'Jose', email: 'test3@gmail.com', online: true),
-    Usuario(uid: '4', name: 'Marcos', email: 'test4@gmail.com', online: false),
+    User(uid: '1', name: 'Loreto', email: 'test1@gmail.com', online: true),
+    User(uid: '2', name: 'Elisa', email: 'test2@gmail.com', online: false),
+    User(uid: '3', name: 'Jose', email: 'test3@gmail.com', online: true),
+    User(uid: '4', name: 'Marcos', email: 'test4@gmail.com', online: false),
   ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('It\' Me!'),
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Hero(
+              tag: "icon",
+              child: Image(
+                height: 30,
+                image: AssetImage('assets/tag-logo.png'),
+              ),
+            ),
+            SizedBox(
+              width: 20,
+            ),
+            Text('It\' Me!'),
+          ],
+        ),
         leading: IconButton(
           icon: Icon(Icons.exit_to_app),
-          onPressed: () {},
+          onPressed: () {
+            AuthService.deleteToken()
+                .then((value) => Navigator.pushReplacementNamed(context, 'login'));
+          },
         ),
         actions: [
           IconButton(
