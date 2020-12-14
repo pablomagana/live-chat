@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lifechat/services/auth_service.dart';
+import 'package:lifechat/services/socket_service.dart';
 import 'package:provider/provider.dart';
 
 class SplashPage extends StatelessWidget {
@@ -25,8 +26,10 @@ class SplashPage extends StatelessWidget {
 
   Future checkLoginState(BuildContext context) async {
     final authService = Provider.of<AuthService>(context, listen: false);
+    final socketService = Provider.of<SocketService>(context, listen: false);
     final logged = await authService.isLogged();
     if (logged) {
+      socketService.connect();
       Navigator.pushReplacementNamed(context, 'usuarios');
     } else {
       Navigator.pushReplacementNamed(context, 'login');

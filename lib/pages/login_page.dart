@@ -1,8 +1,7 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:lifechat/helpers/alerts.dart';
 import 'package:lifechat/services/auth_service.dart';
+import 'package:lifechat/services/socket_service.dart';
 import 'package:lifechat/widgets/button_form.dart';
 import 'package:lifechat/widgets/input_form.dart';
 import 'package:lifechat/widgets/labels.dart';
@@ -14,7 +13,7 @@ class LoginPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-          backgroundColor: Colors.lightGreen,
+          backgroundColor: Colors.white,
           body: SingleChildScrollView(
               physics: BouncingScrollPhysics(),
               child: Container(
@@ -53,6 +52,7 @@ class __FormState extends State<_Form> {
   @override
   Widget build(BuildContext context) {
     final authService = Provider.of<AuthService>(context);
+    final socketService = Provider.of<SocketService>(context);
     return Container(
       margin: EdgeInsets.only(top: 40),
       padding: EdgeInsets.symmetric(horizontal: 50),
@@ -82,6 +82,7 @@ class __FormState extends State<_Form> {
                       authService.authenticating = true;
                       final loginStatus = await authService.login(email, pass.trim());
                       if (loginStatus) {
+                        socketService.connect();
                         Navigator.pushReplacementNamed(context, 'usuarios');
                       } else {
                         showAlert(context, "Error Login", "Usuario o contraseña invalidos");

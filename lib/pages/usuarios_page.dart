@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:lifechat/models/user.dart';
 import 'package:lifechat/services/auth_service.dart';
+import 'package:lifechat/services/chat_service.dart';
+import 'package:lifechat/services/socket_service.dart';
+import 'package:lifechat/services/users_service.dart';
+import 'package:provider/provider.dart';
 
 class UsuariosPage extends StatefulWidget {
   @override
@@ -9,15 +13,24 @@ class UsuariosPage extends StatefulWidget {
 
 class _UsuariosPageState extends State<UsuariosPage> {
   bool serverConnected = false;
-  final usuarios = [
-    User(uid: '1', name: 'Loreto', email: 'test1@gmail.com', online: true),
-    User(uid: '2', name: 'Elisa', email: 'test2@gmail.com', online: false),
-    User(uid: '3', name: 'Jose', email: 'test3@gmail.com', online: true),
-    User(uid: '4', name: 'Marcos', email: 'test4@gmail.com', online: false),
-  ];
+  List<User> usuarios = [];
+
+  _loadUsers() async {
+    final usersService = UsersService();
+    this.usuarios = await usersService.getUsuarios();
+    setState(() {});
+  }
+
+  @override
+  void initState() {
+    _loadUsers();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
+    final socketService = Provider.of<SocketService>(context);
+    serverConnected = socketService.serverStatus == ServerStatus.Online;
     return Scaffold(
       appBar: AppBar(
         title: Row(
@@ -39,6 +52,7 @@ class _UsuariosPageState extends State<UsuariosPage> {
         leading: IconButton(
           icon: Icon(Icons.exit_to_app),
           onPressed: () {
+            socketService.disconnect();
             AuthService.deleteToken()
                 .then((value) => Navigator.pushReplacementNamed(context, 'login'));
           },
@@ -46,7 +60,7 @@ class _UsuariosPageState extends State<UsuariosPage> {
         actions: [
           IconButton(
             icon: Icon(
-              Icons.check_circle_rounded,
+              Icons.check_circle,
               color: serverConnected ? Colors.lightGreen : Colors.redAccent,
             ),
             onPressed: () {},
@@ -67,6 +81,11 @@ class _UsuariosPageState extends State<UsuariosPage> {
                 color: usuarios[i].online ? Colors.lightGreen : Colors.redAccent,
                 borderRadius: BorderRadius.circular(100)),
           ),
+          onTap: () {
+            final chatService = Provider.of<ChatService>(context, listen: false);
+            chatService.userTo = usuarios[i];
+            Navigator.pushNamed(context, 'chat');
+          },
         ),
         separatorBuilder: (_, i) => Divider(),
         itemCount: usuarios.length,
